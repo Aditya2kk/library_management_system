@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --accent-primary: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-glow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand i {
+            -webkit-text-fill-color: initial;
+            color: #818cf8;
+            font-size: 1.6rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Container */
+        .main-container {
+            max-width: 1240px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Stat Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #475569;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .stat-icon.purple { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-icon.blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .stat-icon.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .stat-info h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 2px;
+        }
+
+        /* Content Sections */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            width: 280px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px 10px 38px;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-glow);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 14px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: modalPop 0.25s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent-primary);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success i { color: var(--accent-green); }
+        .toast.error i { color: var(--accent-red); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="brand">
+            <i class="fa-solid fa-book-bookmark"></i>
+            LibraryHub
+        </div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('books')">
+                <i class="fa-solid fa-book"></i> Books
+            </button>
+            <button class="tab-btn" onclick="switchTab('members')">
+                <i class="fa-solid fa-users"></i> Members
+            </button>
+            <button class="tab-btn" onclick="switchTab('borrow')">
+                <i class="fa-solid fa-hand-holding-hand"></i> Borrow / Return
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Stats Row -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fa-solid fa-book"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-total-books">0</h3>
+                    <p>Total Titles</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa-solid fa-copy"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-copies">0</h3>
+                    <p>Available Copies</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-members">0</h3>
+                    <p>Registered Members</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="stat-info">
+                    <h3 id="stat-active-borrows">0</h3>
+                    <p>Active Borrows</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOKS TAB -->
+        <div id="tab-books" class="tab-content active">
+            <div class="section-header">
+                <h2 class="section-title">Book Directory</h2>
+                <div class="action-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="book-search-input" placeholder="Search by author..." oninput="handleBookSearch()">
+                    </div>
+                    <button class="btn-primary" onclick="openAddBookModal()">
+                        <i class="fa-solid fa-plus"></i> Add Book
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Category</th>
+                            <th>Available Copies</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="books-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MEMBERS TAB -->
+        <div id="tab-members" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Library Members</h2>
+                <div class="action-bar">
+                    <button class="btn-primary" onclick="openAddMemberModal()">
+                        <i class="fa-solid fa-user-plus"></i> Add Member
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="members-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BORROW TAB -->
+        <div id="tab-borrow" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Borrow & Return Operations</h2>
+                <button class="btn-primary" onclick="openBorrowModal()">
+                    <i class="fa-solid fa-hand-holding"></i> Issue Book
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Member</th>
+                            <th>Book Title</th>
+                            <th>Issue Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="borrows-table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ADD BOOK MODAL -->
+    <div id="modal-book" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-book-title">Add New Book</h3>
+                <button class="modal-close" onclick="closeModal('modal-book')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-book" onsubmit="saveBook(event)">
+                <input type="hidden" id="book-id">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="book-title" required placeholder="e.g. Clean Code">
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" id="book-author" required placeholder="e.g. Robert C. Martin">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="book-category" required placeholder="e.g. Software Engineering">
+                </div>
+                <div class="form-group">
+                    <label>Available Copies</label>
+                    <input type="number" id="book-copies" required min="0" value="1">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:10px;">
+                    Save Book
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD MEMBER MODAL -->
+    <div id="modal-member" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-member-title">Add New Member</h3>
+                <button class="modal-close" onclick="closeModal('modal-member')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-member" onsubmit="saveMember(event)">
+                <input type="hidden" id="member-id">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="member-name" required placeholder="e.g. Alice Johnson">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="member-email" required placeholder="alice@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="member-phone" required placeholder="9876543210">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:10px;">
+                    Save Member
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- BORROW MODAL -->
+    <div id="modal-borrow" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Issue Book to Member</h3>
+                <button class="modal-close" onclick="closeModal('modal-borrow')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-borrow" onsubmit="issueBook(event)">
+                <div class="form-group">
+                    <label>Select Member</label>
+                    <select id="borrow-member-select" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Select Available Book</label>
+                    <select id="borrow-book-select" required></select>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:10px;">
+                    Issue Book
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        const API_BASE = '/api';
+        let allBooks = [];
+        let allMembers = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'books') loadBooks();
+            if (tabName === 'members') loadMembers();
+            if (tabName === 'borrow') loadBorrows();
+        }
+
+        async function loadDashboardData() {
+            await Promise.all([loadBooks(), loadMembers(), loadBorrows()]);
+        }
+
+        // --- BOOKS API ---
+        async function loadBooks() {
+            try {
+                const res = await fetch(`${API_BASE}/books?size=100`);
+                const data = await res.json();
+                allBooks = data.content || [];
+                renderBooksTable(allBooks);
+                updateBookStats();
+            } catch (e) {
+                showToast('Failed to load books', 'error');
+            }
+        }
+
+        function renderBooksTable(books) {
+            const tbody = document.getElementById('books-table-body');
+            if (!books.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No books found</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = books.map(b => `
+                <tr>
+                    <td>#${b.id}</td>
+                    <td style="font-weight:600;">${escapeHtml(b.title)}</td>
+                    <td>${escapeHtml(b.author)}</td>
+                    <td><span class="badge badge-purple">${escapeHtml(b.category)}</span></td>
+                    <td>
+                        <span class="badge ${b.availableCopies > 0 ? 'badge-green' : 'badge-red'}">
+                            ${b.availableCopies} available
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-secondary" onclick="openEditBookModal(${b.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-danger" onclick="deleteBook(${b.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateBookStats() {
+            document.getElementById('stat-total-books').textContent = allBooks.length;
+            const totalCopies = allBooks.reduce((acc, b) => acc + (b.availableCopies || 0), 0);
+            document.getElementById('stat-copies').textContent = totalCopies;
+        }
+
+        async function handleBookSearch() {
+            const author = document.getElementById('book-search-input').value.trim();
+            if (!author) {
+                renderBooksTable(allBooks);
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/books/search?author=${encodeURIComponent(author)}`);
+                const searchResults = await res.json();
+                renderBooksTable(searchResults);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function openAddBookModal() {
+            document.getElementById('modal-book-title').textContent = 'Add New Book';
+            document.getElementById('book-id').value = '';
+            document.getElementById('form-book').reset();
+            document.getElementById('modal-book').classList.add('active');
+        }
+
+        function openEditBookModal(id) {
+            const book = allBooks.find(b => b.id === id);
+            if (!book) return;
+            document.getElementById('modal-book-title').textContent = 'Edit Book';
+            document.getElementById('book-id').value = book.id;
+            document.getElementById('book-title').value = book.title;
+            document.getElementById('book-author').value = book.author;
+            document.getElementById('book-category').value = book.category;
+            document.getElementById('book-copies').value = book.availableCopies;
+            document.getElementById('modal-book').classList.add('active');
+        }
+
+        async function saveBook(e) {
+            e.preventDefault();
+            const id = document.getElementById('book-id').value;
+            const payload = {
+                title: document.getElementById('book-title').value,
+                author: document.getElementById('book-author').value,
+                category: document.getElementById('book-category').value,
+                availableCopies: parseInt(document.getElementById('book-copies').value)
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_BASE}/books/${id}` : `${API_BASE}/books`;
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || 'Operation failed');
+                }
+                showToast(id ? 'Book updated successfully' : 'Book added successfully', 'success');
+                closeModal('modal-book');
+                loadBooks();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteBook(id) {
+            if (!confirm('Are you sure you want to delete this book?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/books/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('Book deleted', 'success');
+                    loadBooks();
+                } else {
+                    showToast('Could not delete book', 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting book', 'error');
+            }
+        }
+
+        // --- MEMBERS API ---
+        async function loadMembers() {
+            try {
+                const res = await fetch(`${API_BASE}/members`);
+                allMembers = await res.json();
+                document.getElementById('stat-members').textContent = allMembers.length;
+                renderMembersTable(allMembers);
+            } catch (e) {
+                showToast('Failed to load members', 'error');
+            }
+        }
+
+        function renderMembersTable(members) {
+            const tbody = document.getElementById('members-table-body');
+            if (!members.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No members registered</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = members.map(m => `
+                <tr>
+                    <td>#${m.id}</td>
+                    <td style="font-weight:600;">${escapeHtml(m.name)}</td>
+                    <td>${escapeHtml(m.email)}</td>
+                    <td>${escapeHtml(m.phone)}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="openEditMemberModal(${m.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-danger" onclick="deleteMember(${m.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddMemberModal() {
+            document.getElementById('modal-member-title').textContent = 'Add New Member';
+            document.getElementById('member-id').value = '';
+            document.getElementById('form-member').reset();
+            document.getElementById('modal-member').classList.add('active');
+        }
+
+        function openEditMemberModal(id) {
+            const m = allMembers.find(mem => mem.id === id);
+            if (!m) return;
+            document.getElementById('modal-member-title').textContent = 'Edit Member';
+            document.getElementById('member-id').value = m.id;
+            document.getElementById('member-name').value = m.name;
+            document.getElementById('member-email').value = m.email;
+            document.getElementById('member-phone').value = m.phone;
+            document.getElementById('modal-member').classList.add('active');
+        }
+
+        async function saveMember(e) {
+            e.preventDefault();
+            const id = document.getElementById('member-id').value;
+            const payload = {
+                name: document.getElementById('member-name').value,
+                email: document.getElementById('member-email').value,
+                phone: document.getElementById('member-phone').value
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_BASE}/members/${id}` : `${API_BASE}/members`;
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || 'Operation failed');
+                }
+                showToast(id ? 'Member updated successfully' : 'Member added successfully', 'success');
+                closeModal('modal-member');
+                loadMembers();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteMember(id) {
+            if (!confirm('Are you sure you want to delete this member?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/members/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('Member deleted', 'success');
+                    loadMembers();
+                } else {
+                    showToast('Could not delete member', 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting member', 'error');
+            }
+        }
+
+        // --- BORROW API ---
+        async function loadBorrows() {
+            try {
+                const res = await fetch(`${API_BASE}/borrow/active`);
+                const activeBorrows = await res.json();
+                document.getElementById('stat-active-borrows').textContent = activeBorrows.length;
+                renderBorrowsTable(activeBorrows);
+            } catch (e) {
+                showToast('Failed to load borrow records', 'error');
+            }
+        }
+
+        function renderBorrowsTable(borrows) {
+            const tbody = document.getElementById('borrows-table-body');
+            if (!borrows.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No active borrow records</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = borrows.map(br => `
+                <tr>
+                    <td>#${br.id}</td>
+                    <td style="font-weight:600;">${escapeHtml(br.memberName || ('Member #' + br.memberId))}</td>
+                    <td>${escapeHtml(br.bookTitle || ('Book #' + br.bookId))}</td>
+                    <td>${br.issueDate}</td>
+                    <td><span class="badge badge-red">Borrowed</span></td>
+                    <td>
+                        <button class="btn-primary" style="padding:6px 12px; font-size:0.85rem;" onclick="returnBook(${br.id})">
+                            <i class="fa-solid fa-rotate-left"></i> Return Book
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openBorrowModal() {
+            const mSelect = document.getElementById('borrow-member-select');
+            const bSelect = document.getElementById('borrow-book-select');
+
+            mSelect.innerHTML = allMembers.map(m => `<option value="${m.id}">${escapeHtml(m.name)} (#${m.id})</option>`).join('');
+            
+            const available = allBooks.filter(b => b.availableCopies > 0);
+            bSelect.innerHTML = available.map(b => `<option value="${b.id}">${escapeHtml(b.title)} (${b.availableCopies} available)</option>`).join('');
+
+            if (!allMembers.length || !available.length) {
+                showToast('Ensure members and available books exist before issuing', 'error');
+                return;
+            }
+
+            document.getElementById('modal-borrow').classList.add('active');
+        }
+
+        async function issueBook(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('borrow-member-select').value;
+            const bookId = document.getElementById('borrow-book-select').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/borrow?memberId=${memberId}&bookId=${bookId}`, {
+                    method: 'POST'
+                });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || 'Could not issue book');
+                }
+                showToast('Book issued successfully', 'success');
+                closeModal('modal-borrow');
+                loadDashboardData();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function returnBook(recordId) {
+            try {
+                const res = await fetch(`${API_BASE}/borrow/return/${recordId}`, { method: 'POST' });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || 'Could not return book');
+                }
+                showToast('Book returned successfully', 'success');
+                loadDashboardData();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // --- UTILS ---
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
